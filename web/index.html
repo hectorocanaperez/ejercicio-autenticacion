@@ -8,12 +8,81 @@
         <button id="btn-login" disabled="true" onclick="login()">Log in</button>
         <button id="btn-logout" disabled="true" onclick="logout()">Log out</button>
     </body>
+    <script src="https://cdn.auth0.com/js/auth0-spa-js/2.0/auth0-spa-js.production.js"></script>
     <script>
-        const req = new XMLHttpRequest();
-        req.open('GET', '/api/protectedData', false);
-        req.send(null);
-        if (req.status===200) {
-            document.getElementById("data").innerHTML = req.responseText;;
+       
+
+        const fetchData=async ()=>{
+            const taken=await auth0Client.getTokenSilently();
+            const req = new XMLHttpRequest();
+            req.open('GET', '/api/protectedData', false);
+            req.setRequestHeader('Authorization', `Bearer ${taken}`)
+            req.send(null);
+            if (req.status===200) {
+                document.getElementById("data").innerHTML = req.responseText;;
+            }
         }
+        const configureClient = async () => {
+           
+            auth0Client = await auth0.createAuth0Client({
+                domain: "dev-z43u1e4o5u1ezaie.us.auth0.com",
+                clientId: "14HsLDfulN6oLa0lCwHLSmTI3YPxbdJp",
+                authorizationParams: {
+
+                redirect_uri: window.location.origin,
+
+                audience: 'http://localhost:3000/api'
+
+                }
+            });
+        }
+        window.onload = async () => {
+            await configureClient();
+            await updateUI();
+            
+            
+            const query = window.location.search;
+            if (query.includes("code=") && query.includes("state=")) {
+
+                // Process the login state
+                await auth0Client.handleRedirectCallback();
+                
+                updateUI();
+
+                // Use replaceState to redirect the user away and remove the querystring parameters
+                window.history.replaceState({}, document.title, "/");
+
+            }
+            await fetchData();
+        }
+
+        const updateUI = async () => {
+            const isAuthenticated = await auth0Client.isAuthenticated();
+
+            document.getElementById("btn-logout").disabled = !isAuthenticated;
+            document.getElementById("btn-login").disabled = isAuthenticated;
+            if (isAuthenticated){
+                const {email}= await auth0Client.getUser()
+                document.getElementById("greeting").innerHTML=`buenas ${email}`
+            }
+        };
+
+        const login = async () => {
+            await auth0Client.loginWithRedirect({
+                authorizationParams: {
+                redirect_uri: window.location.origin
+                }
+            });
+
+        }   
+        const logout = () => {
+            auth0Client.logout({
+                logoutParams: {
+                    returnTo: window.location.origin
+                }
+            });
+        };
+
+
     </script>
 </html>
