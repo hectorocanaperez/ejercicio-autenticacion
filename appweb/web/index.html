@@ -7,11 +7,12 @@
         <h2 id="nombre">nombre</h2>
         <p id="data">Hidden data</p>
         <button id="btn-login">Log in</button>
-        <button id="btn-logout">Log out</button>
+        
     </body>
     <script>
         let email;
-        let logout=document.getElementById("btn-logout");
+        
+        // let logout=document.getElementById("btn-logout").disabled=false;
         let login=document.getElementById("btn-login");
         let greeting=document.getElementById("nombre");
         let data=document.getElementById("data")
@@ -19,13 +20,12 @@
         req.open('GET', '/api/protectedData', false);
         req.send(null);
         email=req.getResponseHeader("Gap-Auth");
+        login.innerText = email ? 'Logout' : 'Login'
         greeting.innerHTML = email ? email : "hello annonymous";
         data.innerHTML = email ? req.responseText : "hidden data"
         login.addEventListener("click",()=>{
-            window.location.href="/oauth2/sign_in";
-        })
-        logout.addEventListener("click",()=>{
-            window.location.href="/oauth2/sign_out";
+       
+            window.location.href= email ? "/oauth2/sign_out" : "/oauth2/sign_in";
         })
 
 
