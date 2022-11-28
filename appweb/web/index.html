@@ -1,0 +1,67 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <h1>Prueba proxy</h1>
+        <h2 id="nombre">nombre</h2>
+        <p id="data">Hidden data</p>
+        <button id="btn-login">Log in</button>
+        <button id="btn-logout">Log out</button>
+    </body>
+    <script>
+        let email;
+        let logout=document.getElementById("btn-logout");
+        let login=document.getElementById("btn-login");
+        let greeting=document.getElementById("nombre");
+        let data=document.getElementById("data")
+        const req = new XMLHttpRequest();
+        req.open('GET', '/api/protectedData', false);
+        req.send(null);
+        email=req.getResponseHeader("Gap-Auth");
+        greeting.innerHTML = email ? email : "hello annonymous";
+        data.innerHTML = email ? req.responseText : "hidden data"
+        login.addEventListener("click",()=>{
+            window.location.href="/oauth2/sign_in";
+        })
+        logout.addEventListener("click",()=>{
+            window.location.href="/oauth2/sign_out";
+        })
+
+
+        // MANERA DE REALIZARLO CON FETCH
+
+
+        // document.getElementById("btn-login").addEventListener('click',()=>{
+        //     window.location.href='/oauth2/sign_in'
+            
+        // })
+        // document.getElementById("btn-logout").addEventListener('click',()=>{
+        //     window.location.href='/oauth2/sign_out'
+        
+        // })
+        // fetch('/oauth2/userinfo')
+        // .then(response => response.json())
+        // .then(data => {
+        //     console.log("data",data)
+        //     if (data.email) {
+        //         document.getElementById("nombre").innerHTML = "buenas " + data.email;
+        //     }
+        // })
+        // .catch(e=>{
+            
+        //     document.getElementById("greeting").innerHTML =  'Hello Anonymous';
+        // })
+      
+
+        // // if (req.status===200) {
+        // //     document.getElementById("data").innerHTML = req.response;
+        // // }
+        // fetch('/api/protectedData')
+    
+        // .then(response => response.json())
+        // .then(data=>{
+        //     document.getElementById("data").innerHTML = data.message ? data.message : 'Hidden data';   
+        // })
+    </script>
+</html>
